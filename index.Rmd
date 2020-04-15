@@ -28,7 +28,7 @@ death_color <- "red"
 data<-read.csv("https://raw.githubusercontent.com/GhoraiVanga/Covid19/master/Covid19.csv")
 
 df <- data %>% 
-     dplyr::select(State ,Recovered,Deaths,Active,Confirmed)
+     dplyr::select(State ,Confirmed,Recovered,Deaths,Active)
 
  Data1<- read.csv("https://raw.githubusercontent.com/GhoraiVanga/Covid19/master/Time_Wise_Data.csv")
  Data1$Date=as.Date(Data1$Date, "%d-%b")
@@ -189,8 +189,7 @@ df_summary <-df %>%
   dplyr::mutate(recover_rate = Recovered / Confirmed,
                 death_rate = Deaths / Confirmed)  
 df_summary %>%
-  DT::datatable(rownames = FALSE,
-            colnames = c("State", "Confirmed", "Recovered", "Death", "Recovery Rate", "Death Rate"),
+  DT::datatable(
             options = list(pageLength = nrow(df_summary), dom = 'tip')) %>%
   DT::formatPercentage("recover_rate", 2) %>%
   DT::formatPercentage("death_rate", 2)  
