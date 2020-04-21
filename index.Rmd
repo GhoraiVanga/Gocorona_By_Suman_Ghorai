@@ -215,14 +215,22 @@ df_summary %>%
 ```
 
 
-MAP
+State_Wise
 =======================================================================
 
-**COMMING SOON**
+
+Column {data-width=950}
+-------------------------------------
+
 
 ```{r}
+x <- circlepackeR(population, 
+                  size = "Confirmed", 
+                  color_min = "hsl(120,80%,80%)", 
+                  color_max = "hsl(240,30%,40%)",
+                  width = "1500px",height="1500px")
 
-
+x
 ```
 
 Trends
@@ -236,12 +244,7 @@ Column {data-width=400}
 
     
 ```{r}
-x <- circlepackeR(population, 
-                  size = "Confirmed", 
-                  color_min = "hsl(120,80%,80%)", 
-                  color_max = "hsl(240,30%,40%)",
-                  width = "1366px",height="768px")
-x
+
 
 
 ```
