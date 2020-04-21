@@ -14,7 +14,13 @@ output:
 #------------------ Packages ------------------
 library(flexdashboard)
 library(plotly)
-
+library(flexdashboard)
+library(circlepackeR)  
+library(hrbrthemes)
+library(htmlwidgets)
+library(data.tree)
+library(leafpop)
+library(purrr)
 
 `%>%` <- magrittr::`%>%`
 #------------------ Parameters ------------------
@@ -32,6 +38,15 @@ df <- data %>%
 
  Data1<- read.csv("https://raw.githubusercontent.com/GhoraiVanga/Covid19/master/Time_Wise_Data.csv")
  Data1$Date=as.Date(Data1$Date, "%d-%b")
+ nestdict <- read.csv("Distric_Wise.csv")
+ nestdict$A <-paste(nestdict$District,nestdict$Confirmed)
+nestdict$pathString <- paste("world", 
+                             nestdict$State, 
+                             nestdict$A,
+                             
+                             sep = "/")
+
+population <- as.Node(nestdict)
 
   
 #------------trajectory plot data prep------------
@@ -200,12 +215,13 @@ df_summary %>%
 ```
 
 
-Map
+MAP
 =======================================================================
 
 **COMMING SOON**
 
 ```{r}
+
 
 ```
 
@@ -220,6 +236,12 @@ Column {data-width=400}
 
     
 ```{r}
+x <- circlepackeR(population, 
+                  size = "Confirmed", 
+                  color_min = "hsl(120,80%,80%)", 
+                  color_max = "hsl(240,30%,40%)",
+                  width = "1366px",height="768px")
+x
 
 
 ```
