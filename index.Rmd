@@ -30,8 +30,8 @@ active_color <- "#1f77b4"
 recovered_color <- "forestgreen"
 death_color <- "red"
 #------------------ Data ------------------
-data<-read.csv("https://raw.githubusercontent.com/GhoraiVanga/Covid19/master/Covid19.csv")
-
+data<-read.csv("https://api.covid19india.org/csv/latest/state_wise.csv")
+data <- data[-c(1),]
 df <- data %>% 
      dplyr::select(State ,Confirmed,Recovered,Deaths,Active)
 
@@ -223,13 +223,7 @@ Column {data-width=950}
 
 
 ```{r}
-x <- circlepackeR(population, 
-                  size = "Confirmed", 
-                  color_min = "hsl(120,80%,80%)", 
-                  color_max = "hsl(240,30%,40%)",
-                  width = "1500px",height="1500px")
 
-x
 ```
 
 Trends
