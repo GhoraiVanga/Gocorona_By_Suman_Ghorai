@@ -164,11 +164,11 @@ Row
 
 p=plotly::plot_ly(df ,
                 x =df$State  , 
-                y = df$Active, 
+                y = df$Confirmed, 
                 # text =  ~ confirmed, 
                 # textposition = 'auto',
                 type = "bar", 
-                name = "Active",
+                name = "Confirmed",
                 marker = list(color = active_color)) %>%
   plotly::add_trace(y = df$Recovered, 
                     # text =  ~ recovered, 
