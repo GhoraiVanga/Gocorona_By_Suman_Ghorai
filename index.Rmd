@@ -20,6 +20,9 @@ library(htmlwidgets)
 library(data.tree)
 library(leafpop)
 library(purrr)
+library(jsonlite)
+library(rjson)
+
 
 `%>%` <- magrittr::`%>%`
 #------------------ Parameters ------------------
@@ -37,15 +40,48 @@ df <- data %>%
 
  Data1<- read.csv("https://raw.githubusercontent.com/GhoraiVanga/Covid19/master/Time_Wise_Data.csv")
  Data1$Date=as.Date(Data1$Date, "%d-%b")
- nestdict <- read.csv("Distric_Wise.csv")
- nestdict$A <-paste(nestdict$District,nestdict$Confirmed)
-nestdict$pathString <- paste("world", 
-                             nestdict$State, 
-                             nestdict$A,
+# nestdict <- read.csv("Distric_Wise.csv")
+# nestdict$A <-paste(nestdict$District,nestdict$Confirmed)
+#nestdict$pathString <- paste("world", 
+                            # nestdict$State, 
+                            # nestdict$A,
                              
-                             sep = "/")
+                            # sep = "/")
 
-population <- as.Node(nestdict)
+#population <- as.Node(nestdict)
+Trend <- jsonlite::fromJSON("https://api.covid19india.org/data.json")
+result1 <-Trend$statewise
+Trend_Data <- as.data.frame(result1)
+Trend_Data$lastupdatedtime <- as.Date(Trend_Data$lastupdatedtime,format = "%d/%m/%Y")
+
+result2 <-Trend$tested
+Trend_Tested <- as.data.frame(result2)
+Trend_Tested$totalsamplestested <- as.numeric(Trend_Tested$totalsamplestested )
+Trend_Tested<-max(Trend_Tested$totalsamplestested, na.rm = TRUE )
+
+result3 <-Trend$statewise
+Trend_Today <- as.data.frame(result1)
+Trend_Today $lastupdatedtime <- as.Date(Trend_Today $lastupdatedtime,format = "%d/%m/%Y")
+Trend_Today $deltaconfirmed <- as.numeric(Trend_Today $deltaconfirmed)
+Trend_Today $deltadeaths <- as.numeric(Trend_Today $deltadeaths )
+Trend_Today $deltarecovered <- as.numeric(Trend_Today $deltarecovered)
+Trend_Today_PD <- Trend_Today  %>% select(deltadeaths,deltarecovered,deltaconfirmed,lastupdatedtime,state) %>% 
+  filter(lastupdatedtime==Sys.Date()) %>%
+  filter(deltarecovered >0 | deltaconfirmed >0 | deltadeaths > 0  ) 
+Trend_Today_PD <- Trend_Today_PD[-1,]
+
+
+kit <- jsonlite::fromJSON("https://api.covid19india.org/state_test_data.json")
+KIT_Data <- as.data.frame(kit)
+
+KIT_Data $states_tested_data.updatedon <-as.Date(KIT_Data$states_tested_data.updatedon,format = '%d/%m/%Y')
+KIT_Data <- KIT_Data %>% select(states_tested_data.updatedon,states_tested_data.totaltested,states_tested_data.state,states_tested_data.positive)
+KIT_Data1 <- KIT_Data %>% filter(states_tested_data.updatedon==Sys.Date()-1)
+KIT_Data1$states_tested_data.totaltested <- as.numeric(KIT_Data1$states_tested_data.totaltested)
+
+KIT_Data1$states_tested_data.positive <- as.numeric(KIT_Data1$states_tested_data.positive)
+KIT_Data1$states_tested_data.state <- as.factor(KIT_Data1$states_tested_data.state)
+KIT_Data1 <- KIT_Data1 %>% group_by(states_tested_data.state) %>% arrange(desc(states_tested_data.totaltested))
 
   
 #------------trajectory plot data prep------------
@@ -64,6 +100,8 @@ Row
 
 
 ### confirmed {.value-box}
+
+
 
 ```{r}
 
@@ -106,6 +144,15 @@ valueBox(value = paste(format(sum(df$Deaths, na.rm = TRUE), big.mark = ","), " (
          color = death_color)
 ```
 
+
+### TotalTested {.value-box}
+
+
+
+```{r}
+
+valueBox(Trend_Tested, icon ="fas fa-stethoscope")
+```
 
 Row
 -----------------------------------------------------------------------
@@ -216,63 +263,147 @@ df_summary %>%
 ```
 
 
-State_Wise
-=======================================================================
-
-
-Column {data-width=950}
--------------------------------------
-
-
-```{r}
-
-```
-
 Trends
 =======================================================================
 
-**COMING SOON**
 
-Column {data-width=400}
--------------------------------------
-    
+Row
+-----------------------------------------------------------------------
 
-    
+### TodayCase (`r  max(Trend_Data$lastupdatedtime)`)
+
 ```{r}
 
+articles <- Trend_Data[1,4]
+valueBox(articles, icon = "fa-pencil")
+```
 
+### TodayDeaths(`r  max(Trend_Data$lastupdatedtime)`)
 
+```{r}
+comments <- Trend_Data[1,5]
+valueBox(comments, icon = "fa-comments")
+```
+
+### TodayRecovered(`r  max(Trend_Data$lastupdatedtime)`)
+
+```{r}
+spam <-Trend_Data[1,6]
+valueBox(spam, 
+         icon = "fa-trash",
+         color = ifelse(spam > 10, "warning", "primary"))
 ```
 
 
 
+Row
+-----------------------------------------------------------------------
+
+### TodayStateWiseCase(`r  max(Trend_Today_PD$lastupdatedtime)`)
 
 ```{r}
 
-```
-   
-Column {data-width=600}
--------------------------------------
-   
+
+df=Trend_Today_PD
+confirmed_color <- "purple"
+active_color <- "#1f77b4"
+recovered_color <- "forestgreen"
+death_color <- "red"
+p=plotly::plot_ly(df ,
+                  x =df$state , 
+                  y = df$deltaconfirmed, 
+                  # text =  ~ confirmed, 
+                  # textposition = 'auto',
+                  type = "bar", 
+                  name = "todayComfrm",
+                  marker = list(color = active_color)) %>%
+  plotly::add_trace(y = df$deltarecovered, 
+                    # text =  ~ death, 
+                    # textposition = 'auto',
+                    name = "todayrecover",
+                    marker = list(color = recovered_color)) %>%
+  plotly::add_trace(y = df$deltadeaths, 
+                    # text =  ~ death, 
+                    # textposition = 'auto',
+                    name = "todayDeaths",
+                    marker = list(color = death_color)) %>%
+  plotly::layout(barmode = 'stack',
+                 yaxis = list(title = "Total Cases (log scaled)",
+                              type = "log"),
+                 xaxis = list(title = "",categoryorder = "array",
+                              categoryarray=df$state),
+                 
+                 hovermode = "compare",
+                 margin =  list(
+                   # l = 60,
+                   # r = 40,
+                   b = 60,
+                   t = 40,
+                   pad = 2
+                 ))
+
+ggplotly(p) %>% config(displayModeBar = F) %>% layout(xaxis=list(fixedrange=TRUE)) %>% layout(yaxis=list(fixedrange=TRUE)) 
 
 
-```{r}
 
   
-```   
- 
 
-    
-```{r}
 
 ```
+
+
+
+Tested
+=======================================================================
+
+### STATEWISETESTED
+    
+```{r}
+df=KIT_Data1
+p=plotly::plot_ly(df ,
+                  x =df$states_tested_data.state  , 
+                  y = df$states_tested_data.totaltested, 
+                  # text =  ~ confirmed, 
+                  # textposition = 'auto',
+                  type = "bar", 
+                  name = "totaltested",
+                  marker = list(color = active_color)) %>%
+   plotly::add_trace(y = df$states_tested_data.positive, 
+                    # text =  ~ death, 
+                    # textposition = 'auto',
+                    name = "positive",
+                    marker = list(color = death_color)) %>%
+  plotly::layout(barmode = 'stack',
+                 yaxis = list(title = "Total Cases (log scaled)",
+                              type = "log"),
+                 xaxis = list(title = "",categoryorder = "array",
+                              categoryarray=df$states_tested_data.state),
+                 
+                 hovermode = "compare",
+                 margin =  list(
+                   # l = 60,
+                   # r = 40,
+                   b = 60,
+                   t = 40,
+                   pad = 2
+                 ))
+
+ggplotly(p) %>% config(displayModeBar = F) %>% layout(xaxis=list(fixedrange=TRUE)) %>% layout(yaxis=list(fixedrange=TRUE))
+
+
+
+```
+
 
 Data
 =======================================================================
 
-```{r}
+Row 
+-----------------------------------------------------------------------
 
-```
+
+
+
 
 
 
