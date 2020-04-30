@@ -22,6 +22,8 @@ library(leafpop)
 library(purrr)
 library(jsonlite)
 library(rjson)
+library(viridis)
+library(highcharter)
 
 
 `%>%` <- magrittr::`%>%`
@@ -92,7 +94,7 @@ KIT_Data1 <- KIT_Data1 %>% group_by(states_tested_data.state) %>% arrange(desc(s
 
 ```
 
-Summary
+INDIA
 =======================================================================
 Row
 -----------------------------------------------------------------------
@@ -157,7 +159,7 @@ valueBox(Trend_Tested, icon ="fas fa-stethoscope")
 Row
 -----------------------------------------------------------------------
 
-### Cases Distribution by State
+### Cases Distribution by State (`r  max(Trend_Data$lastupdatedtime)`)
 
 ```{r daily_summary}
 
@@ -263,7 +265,7 @@ df_summary %>%
 ```
 
 
-Trends
+TodayCase
 =======================================================================
 
 
@@ -356,40 +358,27 @@ ggplotly(p) %>% config(displayModeBar = F) %>% layout(xaxis=list(fixedrange=TRUE
 Tested
 =======================================================================
 
-### STATEWISETESTED
+### STATEWISETESTED ##(`r  max(Trend_Data$lastupdatedtime)`)
     
 ```{r}
-df=KIT_Data1
-p=plotly::plot_ly(df ,
-                  x =df$states_tested_data.state  , 
-                  y = df$states_tested_data.totaltested, 
-                  # text =  ~ confirmed, 
-                  # textposition = 'auto',
-                  type = "bar", 
-                  name = "totaltested",
-                  marker = list(color = active_color)) %>%
-   plotly::add_trace(y = df$states_tested_data.positive, 
-                    # text =  ~ death, 
-                    # textposition = 'auto',
-                    name = "positive",
-                    marker = list(color = death_color)) %>%
-  plotly::layout(barmode = 'stack',
-                 yaxis = list(title = "Total Cases (log scaled)",
-                              type = "log"),
-                 xaxis = list(title = "",categoryorder = "array",
-                              categoryarray=df$states_tested_data.state),
-                 
-                 hovermode = "compare",
-                 margin =  list(
-                   # l = 60,
-                   # r = 40,
-                   b = 60,
-                   t = 40,
-                   pad = 2
-                 ))
 
-ggplotly(p) %>% config(displayModeBar = F) %>% layout(xaxis=list(fixedrange=TRUE)) %>% layout(yaxis=list(fixedrange=TRUE))
 
+cols <- viridis(3)
+cols <- substr(cols, 0, 7)
+hc <- highchart() %>% 
+  hc_xAxis(categories = KIT_Data1$states_tested_data.state) %>% 
+  hc_add_series(name = "TotalTested", data = KIT_Data1$states_tested_data.totaltested) %>% 
+  hc_add_series(name = "TotalPositive", data =KIT_Data1$states_tested_data.positive) %>%
+  hc_colors(cols)
+
+
+p <- hc %>% 
+  hc_chart(type = "column",options3d = list(enabled = TRUE, beta = 15))
+p
+
+
+
+ 
 
 
 ```
