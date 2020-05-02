@@ -394,12 +394,12 @@ Zone
 =======================================================================
 
 
-```{r}
+```{r  global, include=TRUE}
 
 
 
 datatable(Trend_Zone,
-      options = list(pageLength = 20)) %>% formatStyle(
+      options = list(pageLength = 20),escape=TRUE) %>% formatStyle(
   'zones.zone',target = 'row',server = FALSE ,fontWeight = "bold",backgroundSize = '100% 50%',backgroundPosition = 'center',backgroundRepeat = 'no-repeat',
   backgroundColor = styleEqual(c("Red","Orange","Green"), c("Red","Orange","Green"))
 )
