@@ -400,7 +400,7 @@ Zone
 
 datatable(Trend_Zone,
       options = list(pageLength = 20)) %>% formatStyle(
-  'zones.zone',target = 'row', fontWeight = "bold",backgroundSize = '100% 50%',backgroundPosition = 'center',
+  'zones.zone',target = 'row', fontWeight = "bold",backgroundSize = '100% 50%',backgroundPosition = 'center',backgroundRepeat = 'no-repeat',
   backgroundColor = styleEqual(c("Red","Orange","Green"), c("Red","Orange","Green"))
 )
 
