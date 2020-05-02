@@ -394,12 +394,15 @@ Zone
 =======================================================================
 
 
-```{r  global, include=TRUE}
+```{r  includ}
 
 
 
 DT::datatable(Trend_Zone,
-      options = list(pageLength = 20),escape=TRUE,class='cell-border stripe') %>% formatStyle(
+      options = list(pageLength = 20,dom = 'ft',initComplete = JS(
+    "function(settings, json) {",
+    "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
+    "}")),escape=TRUE,class='cell-border stripe') %>% formatStyle(
   'zones.zone',target = 'row',server = FALSE ,fontWeight = "bold",backgroundSize = '100% 50%',backgroundPosition = 'center',backgroundRepeat = 'no-repeat',
   backgroundColor = styleEqual(c("Red","Orange","Green"), c("Red","Orange","Green"))
 )
