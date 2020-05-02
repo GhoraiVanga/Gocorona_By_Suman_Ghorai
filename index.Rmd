@@ -398,8 +398,8 @@ Zone
 
 
 
-datatable(Trend_Zone,
-      options = list(pageLength = 743),escape=TRUE) %>% formatStyle(
+DT::datatable(Trend_Zone,
+      options = list(pageLength = 20),escape=TRUE,class='cell-border stripe') %>% formatStyle(
   'zones.zone',target = 'row',server = FALSE ,fontWeight = "bold",backgroundSize = '100% 50%',backgroundPosition = 'center',backgroundRepeat = 'no-repeat',
   backgroundColor = styleEqual(c("Red","Orange","Green"), c("Red","Orange","Green"))
 )
