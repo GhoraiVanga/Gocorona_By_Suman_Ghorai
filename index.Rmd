@@ -41,8 +41,13 @@ data <- data[-c(1),]
 df <- data %>% 
      dplyr::select(State ,Confirmed,Recovered,Deaths,Active)
 
- Data1<- read.csv("https://raw.githubusercontent.com/GhoraiVanga/Covid19/master/Time_Wise_Data.csv")
- Data1$Date=as.Date(Data1$Date, "%d-%b")
+Trend_All <- jsonlite::fromJSON("https://api.covid19india.org/data.json")
+result_all <-Trend_All$cases_time_series
+Trend_All_Data <- as.data.frame(result_all)
+Trend_All_Data$date=as.Date(Trend_All_Data$date, "%d %b")
+Trend_All_Data$totalconfirmed <- as.numeric(Trend_All_Data$totalconfirmed )
+Trend_All_Data$totaldeceased <- as.numeric(Trend_All_Data$totaldeceased )
+Trend_All_Data$totalrecovered <- as.numeric(Trend_All_Data$totalrecovered )
 # nestdict <- read.csv("Distric_Wise.csv")
 # nestdict$A <-paste(nestdict$District,nestdict$Confirmed)
 #nestdict$pathString <- paste("world", 
@@ -232,18 +237,18 @@ Row {data-width=400}
 #                  hovermode = "compare")
 
 
-q=plotly::plot_ly(data = Data1,
-                x = ~ Date,
-                y = ~ Total.Confirmed, 
-                name = 'Active', 
-                fillcolor = active_color,
-                type = 'scatter',
-                mode = 'none', 
-                stackgroup = 'one') %>%
-  plotly::add_trace(y = ~ Total.Recovered,
+q=plotly::plot_ly(data = Trend_All_Data,
+                  x = ~ date,
+                  y = ~ totalconfirmed, 
+                  name = 'Active', 
+                  fillcolor = active_color,
+                  type = 'scatter',
+                  mode = 'none', 
+                  stackgroup = 'one') %>%
+  plotly::add_trace(y = ~ totalrecovered,
                     name = "Recovered",
                     fillcolor = recovered_color) %>%
-  plotly::add_trace(y = ~ Total.Deceased,
+  plotly::add_trace(y = ~ totaldeceased,
                     name = "Death",
                     fillcolor = death_color) %>%
   plotly::layout(title = "",
