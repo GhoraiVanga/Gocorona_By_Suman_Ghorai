@@ -36,7 +36,7 @@ active_color <- "#1f77b4"
 recovered_color <- "forestgreen"
 death_color <- "red"
 #------------------ Data ------------------
-data<-read.csv("https://api.covid19india.org/csv/latest/state_wise.csv")
+  data<-read.csv("https://api.covid19india.org/csv/latest/state_wise.csv")
 data <- data[-c(1),]
 df <- data %>% 
      dplyr::select(State ,Confirmed,Recovered,Deaths,Active)
