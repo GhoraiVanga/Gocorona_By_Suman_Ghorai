@@ -317,25 +317,25 @@ Row
 ```{r}
 
 
-df=Trend_Today_PD
+df_PD=Trend_Today_PD
 confirmed_color <- "purple"
 active_color <- "#1f77b4"
 recovered_color <- "forestgreen"
 death_color <- "red"
-p=plotly::plot_ly(df ,
-                  x =df$state , 
-                  y = df$deltaconfirmed, 
+p=plotly::plot_ly(df_PD ,
+                  x =df_PD$state , 
+                  y = df_PD$deltaconfirmed, 
                   # text =  ~ confirmed, 
                   # textposition = 'auto',
                   type = "bar", 
                   name = "todayComfrm",
                   marker = list(color = active_color)) %>%
-  plotly::add_trace(y = df$deltarecovered, 
+  plotly::add_trace(y = df_PD$deltarecovered, 
                     # text =  ~ death, 
                     # textposition = 'auto',
                     name = "todayrecover",
                     marker = list(color = recovered_color)) %>%
-  plotly::add_trace(y = df$deltadeaths, 
+  plotly::add_trace(y = df_PD$deltadeaths, 
                     # text =  ~ death, 
                     # textposition = 'auto',
                     name = "todayDeaths",
@@ -344,7 +344,7 @@ p=plotly::plot_ly(df ,
                  yaxis = list(title = "Total Cases (log scaled)",
                               type = "log"),
                  xaxis = list(title = "",categoryorder = "array",
-                              categoryarray=df$state),
+                              categoryarray=df_PD$state),
                  
                  hovermode = "compare",
                  margin =  list(
@@ -403,7 +403,7 @@ Zone
 
 
 a=datatable(Trend_Zone,
-      options = list(pageLength = 20,searchHighlight = TRUE, search = list(search = 'WEST BENGAL'),processing =TRUE,responsive= TRUE,initComplete = JS(
+      options = list(pageLength = 20,searchHighlight = TRUE, processing =TRUE,responsive= TRUE,initComplete = JS(
     "function(settings, json) {",
     "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
     "}")),escape=TRUE,class='cell-border stripe') %>% formatStyle(
@@ -417,6 +417,57 @@ a
 
 
 ```
+
+Table  
+=======================================================================
+
+
+```{r }
+
+
+df_summary1 <-df %>%
+  dplyr::mutate(recover_rate = Recovered / Confirmed,
+                death_rate = Deaths / Confirmed)  
+df_summary1 %>%
+  DT::datatable(
+            options = list(pageLength = nrow(df_summary1), dom = 'tip')) %>%
+  DT::formatPercentage("recover_rate", 2) %>%
+  DT::formatPercentage("death_rate", 2)
+
+
+```
+
+graph 
+=======================================================================
+
+
+```{r }
+
+
+q=plotly::plot_ly(data = Trend_All_Data,
+                  x = ~ date,
+                  y = ~ totalconfirmed, 
+                  name = 'Active', 
+                  fillcolor = active_color,
+                  type = 'scatter',
+                  mode = 'none', 
+                  stackgroup = 'one') %>%
+  plotly::add_trace(y = ~ totalrecovered,
+                    name = "Recovered",
+                    fillcolor = recovered_color) %>%
+  plotly::add_trace(y = ~ totaldeceased,
+                    name = "Death",
+                    fillcolor = death_color) %>%
+  plotly::layout(title = "",
+                 yaxis = list(title = "Cumulative Number of Cases"),
+                 xaxis = list(title = "Date"),
+                 legend = list(x = 0.1, y = 0.9),
+                 hovermode = "compare")
+ggplotly(q) %>% config(displayModeBar = F) %>% layout(xaxis=list(fixedrange=TRUE)) %>% layout(yaxis=list(fixedrange=TRUE))
+
+
+```
+
 
 About
 =======================================================================
